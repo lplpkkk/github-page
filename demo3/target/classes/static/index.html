@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Report test</title>
+    <script src="knockout-3.3.0.js"></script>
+    <script src="sockjs-0.3.4.js"></script>
+    <script src="stomp.js"></script>
+    <script type = "text/javascript">
+    // global variable
+    var client_1 = null;
+    
+    function connect () {
+      var sock = new SockJS('/sock1');
+
+      client_1 = Stomp.over(sock);
+      client_1.connect({},function(frame){
+        client_1.subscribe('/topic/mail_box_1', function(greeting){
+            var str = JSON.parse(greeting.body);
+            showGreeting(str.name);
+        })
+      })
+    }
+
+    function showGreeting(message) {
+        var response = document.getElementById('response');
+        var p = document.createElement('p');
+        p.style.wordWrap = 'break-word';
+        p.appendChild(document.createTextNode(message));
+        response.appendChild(p);
+    }
+
+    function send () {
+      var mail_1 = document.getElementById('mail_1').value;
+      client_1.send("/app/sock1",{}, JSON.stringify({ 'name': mail_1 }));
+    }
+    </script>
+</head>
+<body>
+hi
+<br>
+<button id = "connect" onclick="connect();">connect</button>
+<br>
+<label>send what?</label><input type="text" id ="mail_1">
+<button id = "send" onclick="send();">send</button>
+
+<div>
+  <p id ="response"></p>
+</div>
+
+</body>
+</html>
